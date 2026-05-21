@@ -1,21 +1,21 @@
-//
-//  ContentView.swift
-//  Babble
-//
-//  Created by Stephen Roe on 5/20/26.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @State private var viewModel = BabbleViewModel()
+    @State private var preferredColumn = NavigationSplitViewColumn.sidebar
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationSplitView(preferredCompactColumn: $preferredColumn) {
+            SidebarView(viewModel: viewModel)
+        } detail: {
+            DetailView(viewModel: viewModel)
         }
-        .padding()
+        .onChange(of: viewModel.isGenerating) { _, isNowGenerating in
+            // On iPhone (compact), auto-navigate to the detail pane when generation completes
+            if !isNowGenerating, !viewModel.generatedText.isEmpty {
+                preferredColumn = .detail
+            }
+        }
     }
 }
 
